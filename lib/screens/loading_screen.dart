@@ -7,9 +7,22 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class _LoadingScreenState extends State<LoadingScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    getLocation();
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+  }
+
   void getLocation() async {
     Position position = await Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.low);
+    print(position);
   }
 
   @override
@@ -18,9 +31,8 @@ class _LoadingScreenState extends State<LoadingScreen> {
       body: Center(
         child: RaisedButton(
           onPressed: () {
-            getLocation();
           },
-          child: Text('Get Location'),
+          child: Text('button'),
         ),
       ),
     );
