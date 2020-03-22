@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:clima/location.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:clima/services/location.dart';
+import 'package:clima/services/networking.dart';
+import 'location_screen.dart';
+import '../services/networking.dart';
+
+const apikey = '33a82b8c0da7233c25d00cf6f830cb9a';
 
 class LoadingScreen extends StatefulWidget {
   @override
@@ -12,17 +15,11 @@ class _LoadingScreenState extends State<LoadingScreen> {
   @override
   void initState() {
     super.initState();
-    getLocation();
-  }
-
-  @override
-  void deactivate() {
-    super.deactivate();
+    getLocationData();
   }
 
   @override
   Widget build(BuildContext context) {
-    getData();
     return Scaffold(
       body: Center(
         child: RaisedButton(
@@ -33,26 +30,28 @@ class _LoadingScreenState extends State<LoadingScreen> {
     );
   }
 
-  void getLocation() async {
+  void getLocationData() async {
     Location location = Location();
     await location.getCurrentLocation();
-    print(location.latitude.toString() + " : " + location.longitude.toString());
-  }
+    latitude = location.latitude;
+    longitude = location.longitude;
 
-  void getData() async {
-    http.Response response = await http.get(
-        'https://samples.openweathermap.org/data/2.5/weather?lat=35&lon=139&appid=b6907d289e10d714a6e88b30761fae22');
-    if (response.statusCode == 200) {
-      String data = response.body;
-      print(data);
-      var decodedData = jsonDecode(data);
-      int id = decodedData['weather'][0]['id'];
-      double temperature = decodedData['main']['temp'];
-      String cityName = decodedData['name'];
-      String discription = decodedData['weather'][0]['description'];
-      print(temperature.toString() + cityName + id.toString() + discription);
-    } else {
-      print(response.statusCode);
-    }
+    print(location.latitude.toString() + " : " + location.longitude.toString());
+
+    NetworkHelper networkHelper = NetworkHelper(
+        'https://api.openweathermap.org/data/2.5/weather?lat=$latitude&lon=$longitude&appid=$apikey');
+
+    var weatherData = await networkHelper.getData();
+
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return LocationScreen();
+    }));
   }
 }
+
+//
+//int id = decodedData['weather'][0]['id'];
+//double temperature = decodedData['main']['temp'];
+//String cityName = decodedData['name'];
+//String discription = decodedData['weather'][0]['description'];
+//print(temperature.toString() + cityName + id.toString() + discription);
